@@ -1,5 +1,6 @@
 # QuiltColourGenerator
 For mum, a simple colour generator for her quilts.
+Fully vibe coded with copilot. Seemed a good little project to give it a spin with.
 
 ## 🎨 About
 This is a web-based tool that generates random color patterns for quilts. Simply choose your colors, set the grid size, and generate beautiful random patterns!
