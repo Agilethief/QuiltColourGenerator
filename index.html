@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quilt Colour Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        .size-inputs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .size-input {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .colors-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .colors-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+
+        .color-item:hover {
+            background: #e0e0e0;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+
+        .color-name {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .remove-color {
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background 0.3s;
+        }
+
+        .remove-color:hover {
+            background: #ff3838;
+        }
+
+        .add-color-section {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .add-color-input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 45px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add {
+            background: #5f27cd;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #4a1fa8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(95, 39, 205, 0.3);
+        }
+
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.1em;
+            padding: 15px;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .grid-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            display: none;
+        }
+
+        .grid-container.visible {
+            display: block;
+        }
+
+        #colorGrid {
+            display: grid;
+            gap: 2px;
+            background: #ddd;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            min-height: 30px;
+            transition: transform 0.2s;
+        }
+
+        .grid-cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container, .grid-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .add-color-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-add {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Quilt Colour Generator</h1>
+        <p class="subtitle">Create beautiful random colour patterns for your quilts</p>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Grid Size</label>
+                <div class="size-inputs">
+                    <div class="size-input">
+                        <input type="number" id="rows" min="1" max="50" value="8" placeholder="Rows">
+                    </div>
+                    <div class="size-input">
+                        <input type="number" id="columns" min="1" max="50" value="8" placeholder="Columns">
+                    </div>
+                </div>
+                <div class="error-message" id="sizeError">Please enter valid grid dimensions (1-50)</div>
+            </div>
+
+            <div class="control-group">
+                <label>Your Colours</label>
+                <div class="colors-section">
+                    <div class="colors-list" id="colorsList">
+                        <!-- Colors will be added here dynamically -->
+                    </div>
+                    <div class="add-color-section">
+                        <div class="add-color-input">
+                            <input type="color" id="colorPicker" value="#ff6b6b">
+                        </div>
+                        <button class="btn btn-add" id="addColorBtn">Add Colour</button>
+                    </div>
+                    <div class="error-message" id="colorsError">Please add at least one colour</div>
+                </div>
+            </div>
+
+            <button class="btn btn-generate" id="generateBtn">Generate Grid</button>
+        </div>
+    </div>
+
+    <div class="grid-container" id="gridContainer">
+        <div id="colorGrid"></div>
+    </div>
+
+    <script>
+        // State management
+        let colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe'];
+        
+        // DOM elements
+        const colorsList = document.getElementById('colorsList');
+        const colorPicker = document.getElementById('colorPicker');
+        const addColorBtn = document.getElementById('addColorBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const colorGrid = document.getElementById('colorGrid');
+        const gridContainer = document.getElementById('gridContainer');
+        const rowsInput = document.getElementById('rows');
+        const columnsInput = document.getElementById('columns');
+        const sizeError = document.getElementById('sizeError');
+        const colorsError = document.getElementById('colorsError');
+
+        // Initialize with default colors
+        function init() {
+            renderColors();
+        }
+
+        // Render the color list
+        function renderColors() {
+            colorsList.innerHTML = '';
+            colors.forEach((color, index) => {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'color-item';
+                colorItem.innerHTML = `
+                    <div class="color-preview" style="background-color: ${color}"></div>
+                    <span class="color-name">${color}</span>
+                    <button class="remove-color" onclick="removeColor(${index})">×</button>
+                `;
+                colorsList.appendChild(colorItem);
+            });
+            updateGenerateButton();
+        }
+
+        // Add a new color
+        function addColor() {
+            const newColor = colorPicker.value;
+            if (!colors.includes(newColor)) {
+                colors.push(newColor);
+                renderColors();
+                colorsError.classList.remove('visible');
+            }
+        }
+
+        // Remove a color
+        function removeColor(index) {
+            colors.splice(index, 1);
+            renderColors();
+        }
+
+        // Update generate button state
+        function updateGenerateButton() {
+            if (colors.length === 0) {
+                generateBtn.disabled = true;
+                colorsError.classList.add('visible');
+            } else {
+                generateBtn.disabled = false;
+                colorsError.classList.remove('visible');
+            }
+        }
+
+        // Validate grid size
+        function validateGridSize() {
+            const rows = parseInt(rowsInput.value);
+            const columns = parseInt(columnsInput.value);
+            
+            if (isNaN(rows) || isNaN(columns) || rows < 1 || rows > 50 || columns < 1 || columns > 50) {
+                sizeError.classList.add('visible');
+                return false;
+            }
+            
+            sizeError.classList.remove('visible');
+            return true;
+        }
+
+        // Generate random color from the palette
+        function getRandomColor() {
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Generate the color grid
+        function generateGrid() {
+            if (!validateGridSize() || colors.length === 0) {
+                return;
+            }
+
+            const rows = parseInt(rowsInput.value);
+            const columns = parseInt(columnsInput.value);
+
+            // Clear existing grid
+            colorGrid.innerHTML = '';
+
+            // Set grid template
+            colorGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+            colorGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+            // Generate cells
+            for (let i = 0; i < rows * columns; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.style.backgroundColor = getRandomColor();
+                colorGrid.appendChild(cell);
+            }
+
+            // Show grid container
+            gridContainer.classList.add('visible');
+            
+            // Scroll to grid
+            setTimeout(() => {
+                gridContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // Event listeners
+        addColorBtn.addEventListener('click', addColor);
+        generateBtn.addEventListener('click', generateGrid);
+        
+        rowsInput.addEventListener('input', () => {
+            if (rowsInput.value !== '') validateGridSize();
+        });
+        
+        columnsInput.addEventListener('input', () => {
+            if (columnsInput.value !== '') validateGridSize();
+        });
+
+        // Allow adding color with Enter key
+        colorPicker.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addColor();
+        });
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
