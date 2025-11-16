@@ -165,6 +165,28 @@
             background: white;
         }
 
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-weight: 500;
+            color: #444;
+            cursor: pointer;
+            user-select: none;
+        }
+
         .btn {
             padding: 12px 24px;
             border: none;
@@ -308,6 +330,13 @@
                 </div>
             </div>
 
+            <div class="control-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="whiteSquaresCheckbox">
+                    <label class="checkbox-label" for="whiteSquaresCheckbox">Add white square on every even grid cell</label>
+                </div>
+            </div>
+
             <button class="btn btn-generate" id="generateBtn">Generate Grid</button>
         </div>
     </div>
@@ -331,6 +360,7 @@
         const columnsInput = document.getElementById('columns');
         const sizeError = document.getElementById('sizeError');
         const colorsError = document.getElementById('colorsError');
+        const whiteSquaresCheckbox = document.getElementById('whiteSquaresCheckbox');
 
         // Initialize with default colors
         function init() {
@@ -407,6 +437,7 @@
 
             const rows = parseInt(rowsInput.value);
             const columns = parseInt(columnsInput.value);
+            const whiteSquaresEnabled = whiteSquaresCheckbox.checked;
 
             // Clear existing grid
             colorGrid.innerHTML = '';
@@ -417,9 +448,18 @@
 
             // Generate cells
             for (let i = 0; i < rows * columns; i++) {
+                const row = Math.floor(i / columns);
+                const col = i % columns;
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
-                cell.style.backgroundColor = getRandomColor();
+                
+                // Check if both row and column are even (0-indexed)
+                if (whiteSquaresEnabled && row % 2 === 0 && col % 2 === 0) {
+                    cell.style.backgroundColor = '#ffffff';
+                } else {
+                    cell.style.backgroundColor = getRandomColor();
+                }
+                
                 colorGrid.appendChild(cell);
             }
 
